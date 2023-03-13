@@ -8,10 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreenController {
-  HomeScreenController();
-
-  final FileManagerController managerController = FileManagerController();
+  final FileManagerController _managerController = FileManagerController();
   final StreamController<bool> backStream = StreamController<bool>();
+  final StreamController<String> titleStream = StreamController<String>();
+
+  HomeScreenController() {
+    _managerController.getPathNotifier.addListener(() {
+      titleStream.add(_managerController.getCurrentPath.split('/').last);
+    });
+  }
 
   Future<void> requestPermission() async {
     final permissions = [Permission.storage];
@@ -43,7 +48,7 @@ class HomeScreenController {
                             FileManagerService.basename(e),
                           ),
                           onTap: () {
-                            managerController.openDirectory(e);
+                            _managerController.openDirectory(entity: e);
                             Navigator.pop(context);
                           },
                         ),
@@ -73,7 +78,7 @@ class HomeScreenController {
                 .map(
                   (e) => InkWell(
                     onTap: () {
-                      managerController.sortBy(e);
+                      _managerController.sortBy(e);
                       Navigator.pop(context);
                     },
                     child: Padding(
@@ -120,12 +125,12 @@ class HomeScreenController {
                           // Create Folder
                           if (folderName.text.isNotEmpty) {
                             await FileManagerService.createFolder(
-                              managerController.getCurrentPath,
+                              _managerController.getCurrentPath,
                               folderName.text,
                             );
                             // Open Created Folder
-                            managerController.setCurrentPath =
-                                "${managerController.getCurrentPath}/${folderName.text}";
+                            _managerController.setCurrentPath =
+                                "${_managerController.getCurrentPath}/${folderName.text}";
                           }
                         } catch (e) {
                           debugPrint("Something went wrong ${e.toString()}");
@@ -208,7 +213,7 @@ class HomeScreenController {
                         try {
                           if (fileName.text.isNotEmpty) {
                             await FileManagerService.createFile(
-                              managerController.getCurrentPath,
+                              _managerController.getCurrentPath,
                               "${fileName.text}.${fileType.name}",
                             );
                             result = true;
@@ -269,10 +274,10 @@ class HomeScreenController {
                             final type = entity.path.split(".").last;
 
                             await entity.rename(
-                                "${managerController.getCurrentPath}/${newName.text}.$type");
+                                "${_managerController.getCurrentPath}/${newName.text}.$type");
                           } else {
                             await entity.rename(
-                                "${managerController.getCurrentPath}/${newName.text}");
+                                "${_managerController.getCurrentPath}/${newName.text}");
                           }
                         } catch (e) {
                           debugPrint("Something went wrong ${e.toString()}");
@@ -347,7 +352,8 @@ class HomeScreenController {
                                     )
                                     .toList(),
                                 onChanged: (newEntity) async {
-                                  moveController.openDirectory(newEntity!);
+                                  moveController.openDirectory(
+                                      entity: newEntity!);
                                   entities.clear();
                                   final newEntities =
                                       await openCloseDirectories();
@@ -368,8 +374,8 @@ class HomeScreenController {
                                       InkWell(
                                         key: Key(basename),
                                         onTap: () async {
-                                          moveController
-                                              .openDirectory(newEntity);
+                                          moveController.openDirectory(
+                                              entity: newEntity);
                                           entities.clear();
                                           final newEntities =
                                               await openCloseDirectories();
@@ -450,6 +456,16 @@ class HomeScreenController {
   }
 
   Future<void> goToParentDirectory() async {
-    await managerController.goToParentDirectory(backStream: backStream);
+    await _managerController.goToParentDirectory(backStream: backStream);
+  }
+
+  Future<void> openDirectory({required FileSystemEntity entity}) async {
+    _managerController.openDirectory(entity: entity);
+  }
+
+  FileManagerController get managerController => _managerController;
+
+  void dispose() {
+    _managerController.dispose();
   }
 }

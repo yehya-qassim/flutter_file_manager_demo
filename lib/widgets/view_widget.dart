@@ -19,8 +19,10 @@ class ViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Must provide either onTap or controller
     assert(onTap != null && controller == null ||
         onTap == null && controller != null);
+
     return Card(
       child: ListTile(
         leading: FileManagerService.isFile(entity)
@@ -32,7 +34,7 @@ class ViewWidget extends StatelessWidget {
             () {
               if (FileManagerService.isDirectory(entity)) {
                 controller!.backStream.add(true);
-                controller!.managerController.openDirectory(entity);
+                controller!.openDirectory(entity: entity);
               }
             },
       ),

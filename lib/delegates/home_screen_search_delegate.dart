@@ -32,12 +32,12 @@ class HomeScreenSearchDelegate extends SearchDelegate {
   }
 
   @override
-  Widget buildResults(BuildContext context) => result();
+  Widget buildResults(BuildContext context) => result;
 
   @override
-  Widget buildSuggestions(BuildContext context) => result();
+  Widget buildSuggestions(BuildContext context) => result;
 
-  Widget result() {
+  Widget get result {
     final List<FileSystemEntity> matchEntities = [];
     for (final entity in entities) {
       final entityName = FileManagerService.basename(entity).toLowerCase();
@@ -55,7 +55,7 @@ class HomeScreenSearchDelegate extends SearchDelegate {
           onTap: () {
             if (FileManagerService.isDirectory(entity)) {
               controller.backStream.add(true);
-              controller.managerController.openDirectory(entity);
+              controller.openDirectory(entity: entity);
               close(context, null);
             }
           },

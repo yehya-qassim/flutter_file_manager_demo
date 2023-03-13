@@ -8,12 +8,7 @@ class FileManagerController {
   final ValueNotifier<String> _path = ValueNotifier<String>('');
   final ValueNotifier<SortBy> _sort = ValueNotifier<SortBy>(SortBy.name);
 
-  _updatePath({required String path}) {
-    _path.value = path;
-    titleStream.add(path.split('/').last);
-  }
-
-  final StreamController<String> titleStream = StreamController<String>();
+  _updatePath({required String path}) => _path.value = path;
 
   ValueNotifier<String> get getPathNotifier => _path;
 
@@ -42,7 +37,7 @@ class FileManagerController {
   Future<void> goToParentDirectory({StreamController<bool>? backStream}) async {
     final bool isRoot = await isRootDirectory();
     if (!isRoot) {
-      openDirectory(Directory(_path.value).parent);
+      openDirectory(entity: Directory(_path.value).parent);
       final bool isRootAfterUpdate = await isRootDirectory();
       if (isRootAfterUpdate) {
         if (backStream != null) {
@@ -52,7 +47,7 @@ class FileManagerController {
     }
   }
 
-  void openDirectory(FileSystemEntity entity) {
+  void openDirectory({required FileSystemEntity entity}) {
     if (entity is Directory) {
       _updatePath(path: entity.path);
     } else {

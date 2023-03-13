@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_manage_demo/controllers/home_screen_controller.dart';
 import 'package:file_manage_demo/delegates/home_screen_search_delegate.dart';
 import 'package:file_manage_demo/widgets/file_manager_widget.dart';
-import 'package:file_manage_demo/services/file_manager_service.dart';
 import 'package:file_manage_demo/widgets/view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -45,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async => await controller.sort(context),
             icon: const Icon(Icons.sort_rounded),
           ),
+          // this can be uncommented but i commented it just to have breathing space on appbar
           // IconButton(
           //   onPressed: () async => await controller.selectStorage(context),
           //   icon: const Icon(Icons.sd_storage_rounded),
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
         title: StreamBuilder<String>(
-          stream: controller.managerController.titleStream.stream,
+          stream: controller.titleStream.stream,
           builder: (context, snapshot) => Text(snapshot.data ?? ""),
         ),
         leading: StreamBuilder<bool>(
@@ -141,5 +141,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
